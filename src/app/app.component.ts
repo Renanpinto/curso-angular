@@ -10,9 +10,11 @@ import { Http } from '@angular/http';
       </h1>
     </header>
     <main class="container">
-    <painel *ngFor="let foto of listaFotos" titulo="{{foto.titulo}}">
-      <foto [url]="foto.url" titulo="{{foto.titulo}}"></foto>
+    <div class="row">
+      <painel *ngFor="let foto of listaFotos" titulo="{{foto.titulo}}" class="col-md-2">
+        <foto [url]="foto.url" titulo="{{foto.titulo}}"></foto>
     </painel>
+    </div>
       </main>
   `,
   styles: []
