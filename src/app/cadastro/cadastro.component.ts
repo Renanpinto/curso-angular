@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Event } from '@angular/router/src/events';
 import { FotoComponent } from '../foto/foto.component';
 import { FotoService } from '../servicos/foto.service';
+import { ActivatedRoute } from '@angular/router';
+import { Router } from '@angular/router/';
 
 @Component({
   selector: 'cp-cadastro',
@@ -11,23 +13,59 @@ import { FotoService } from '../servicos/foto.service';
 export class CadastroComponent implements OnInit {
 
   foto = new FotoComponent();
-  constructor(private servico: FotoService) {
+  mensagem = ''
 
-   }
+  constructor(private servico: FotoService,
+    private rota: ActivatedRoute,
+    private roteador: Router) {
+
+    rota.params.subscribe(
+      parametros => {
+        if (parametros.fotoId) {
+          this.carregarFoto(parametros.fotoId)
+        }
+      }
+    )
+
+
+  }
 
   ngOnInit() { }
 
-  salvar() {
-    if(this.foto.url.length > 0){
+  carregarFoto(idFoto) {
 
-    this.servico.cadastrar(this.foto)
-  
-    .subscribe(
-      () => this.foto = new FotoComponent(),
-      erro => console.log(erro)
-    )
-  
+    this.servico.consultar(idFoto)
+      .subscribe(
+
+      fotoApi => this.foto = fotoApi
+      , erro => console.log(erro)
+
+      )
+
   }
+
+  salvar() {
+    if (this.foto.url.length > 0 || this.foto.titulo > 0) {
+      if (this.foto._id) {
+        this.servico.alterar(this.foto)
+          .subscribe(
+          mensagemServico => {
+            this.mensagem = mensagemServico.texto
+            this.roteador.navigate([''])
+          }, erro => console.log(erro)
+          )
+      } else {
+
+        this.servico.cadastrar(this.foto)
+          .subscribe(
+          mensagemServico => {
+            this.mensagem = mensagemServico.texto
+            this.foto = new FotoComponent()
+          },
+          erro => console.log(erro)
+          )
+      }
+    }
   }
 
 }
